@@ -3,8 +3,54 @@ import express from 'express';
 import bodyParser from 'body-parser';
 
 const app = express();
+
+app.use(bodyParser.json());
+
+const test_database = {
+	users: [
+		{
+			id : '123',
+			name : 'Lisa',
+			email : 'Lisa@gmail.com',
+			password : 'Lisa123',
+			entries : 0,
+			joined : new Date()
+		},
+		{
+			id : '321',
+			name : 'Jack',
+			email : 'Jack@gmail.com',
+			password : 'Jack123',
+			entries : 0,
+			joined : new Date()
+		}
+	]
+}
+
 app.get('/', (req, res) =>{
-	res.send('testing if server is working');
+	res.send(test_database.users);
+})
+
+app.post('/register', (req, res) => {
+	const { email, name, password } = req.body;
+	test_database.users.push({
+		id: '987',
+		name: name,
+		email: email,
+		password: password,
+		entries: 0,
+		joined: new Date()
+	})
+	res.json(test_database.users[test_database.users.length-1]);
+})
+
+app.post('/signin', (req, res) => {
+	if (req.body.email === test_database.users[0].email && 
+		req.body.password === test_database.users[0].password) {
+			res.json('sign in success');
+		}else {
+			res.status(400).json('error logging in');
+		}
 })
 
 app.listen(3000, ()=> {

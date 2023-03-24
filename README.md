@@ -3,13 +3,22 @@
 
 ## In-progress:  current plan
 
-planning API 
+Current plan of attack is as follows:
 
-route/home rout 	-->  GET request 	(data)			-->  response 	:  this is working 
-sign-in route  		-->  POST request 	(JSON) 			-->  response 	:  success  or  if failure = register route
-register route		-->  POST request 	(database)		-->  response 	:  user object
-profile/(userID)	-->  GET request 	(user)			-->  response 	:  user information
-Ranking				-->  PUT request 	(user data)		-->  update 	:  user object (count)
+* route/home rout -->  GET request (data)
+-->  response :this is working 
+
+* sign-in route  -->  POST request (JSON) 
+-->  response:success  or  if failure = register route
+
+* register route-->  POST request (database)
+-->  response:user object
+
+* profile/(userID)-->  GET request (user)	
+-->  response:user information
+
+* Ranking	-->  PUT request (user data)
+-->  update :user object (count)
 
 
 ## Created using class based components
