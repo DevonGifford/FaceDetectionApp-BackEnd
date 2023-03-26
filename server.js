@@ -1,16 +1,16 @@
 import * as http from 'http';
 import express from 'express';
-import bodyParser from 'body-parser';
-import bcrypt from 'bcryptjs';
-
-
-const saltRounds = 10;
-const myPlaintextPassword = 's0/\/\P4$$w0rD';
-const someOtherPlaintextPassword = 'not_bacon';
+//import bodyParser from 'body-parser';
+//import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt-nodejs'
+import cors from 'cors';
 
 
 const app = express();
-app.use(bodyParser.json());
+
+// app.use(bodyParser.json()); 		shouldn't have to use this anymore 
+app.use(express.json());
+app.use(cors());
 
 
 const test_database = {
@@ -59,11 +59,10 @@ req.body.password === test_database.users[0].password) {
 	
 app.post('/register', (req, res) => {
 	const { email, name, password } = req.body;
-	bcrypt.hash(password, saltRounds, function(err, hash) {
+	bcrypt.hash("bacon", null, null, function(err, hash) {
 		console.log(hash);
-		console.log(password);
-		// Store hash in your password DB.
 	});
+
 	test_database.users.push({
 		id: '987',
 		name: name,
@@ -106,23 +105,7 @@ app.put('/image', (req, res)=> {
 })
 
 
-// //To Hash a password
-// bcrypt.genSalt(saltRounds, function(err, salt) {
-//     bcrypt.hash(myPlaintextPassword, salt, function(err, hash) {
-//         // Store hash in your password DB.
-//     });
-// });
 
-
-
-// //To check a password
-// // Load hash from your password DB.
-// bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
-//     // result == true
-// });
-// bcrypt.compare(someOtherPlaintextPassword, hash, function(err, result) {
-//     // result == false
-// });
 
 
 
@@ -142,5 +125,20 @@ planning API - what will our design look like
 ✔register route		-->  POST request 	(database)		-->  response 	:  user object
 ✔profile/(userID)	-->  GET request 	(user)			-->  response 	:  user information
 ✔Ranking				-->  PUT request 	(user data)		-->  update 	:  user object (count)
+
+
+bcrypt.hash("bacon", null, null, function(err, hash) {
+    // Store hash in your password DB.
+});
+
+// Load hash from your password DB.
+bcrypt.compare("bacon", hash, function(err, res) {
+    // res == true
+});
+bcrypt.compare("veggies", hash, function(err, res) {
+    // res = false
+});
+
+
 
 */

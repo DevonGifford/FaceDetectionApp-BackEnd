@@ -34,6 +34,8 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.
 You may also see any lint errors in the console.
 
+This app uses cors to run on your local host server
+
 ## futher ...
 This applet is using an outdated package of bcrypt, specifically bcrypt-nodejs
 The reason for this is that this project is merely a showcase app for my portfolio.
