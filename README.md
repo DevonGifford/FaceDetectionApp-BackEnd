@@ -1,7 +1,7 @@
 # Face Detection App
 
 
-## In-progress:  current plan
+## In-progress:
 
 Current plan of attack is as follows:
 
@@ -21,26 +21,22 @@ Current plan of attack is as follows:
 -->  update :user object (count)
 
 
-## Created using class based components
--
--
--
-
-
 ## To run this app
 
 1. Clone this repo
 2. Run `npm install`
 3. Run `npm start`
-4. You must add your own API key in the src/App.js file to connect to Clarifai.
-
-You can grab Clarifai API key [here](https://www.clarifai.com/)
-
-
 
 
 ## note
-Runs the app in the development mode.\
+Runs the app in the development mode.
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-The page will reload when you make changes.\
+The page will reload when you make changes.
 You may also see any lint errors in the console.
+
+## futher ...
+This applet is using an outdated package of bcrypt, specifically bcrypt-nodejs
+The reason for this is that this project is merely a showcase app for my portfolio.
+For simplicity, deployment& showcasing reasons I want the hashing of passwords to work no matter the users system (macOS or Windows).
+
+In future renditons I will update the package to a up to date package of bcrypt...

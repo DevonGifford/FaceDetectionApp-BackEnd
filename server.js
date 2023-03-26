@@ -1,10 +1,17 @@
 import * as http from 'http';
 import express from 'express';
 import bodyParser from 'body-parser';
+import bcrypt from 'bcryptjs';
+
+
+const saltRounds = 10;
+const myPlaintextPassword = 's0/\/\P4$$w0rD';
+const someOtherPlaintextPassword = 'not_bacon';
+
 
 const app = express();
-
 app.use(bodyParser.json());
+
 
 const test_database = {
 	users: [
@@ -24,8 +31,16 @@ const test_database = {
 			entries : 0,
 			joined : new Date()
 		}
+	], login: [
+		{
+			id: '987',
+			hash: '',
+			email: 'Lisa@gmail.com'
+
+		}
 	]
 }
+
 
 app.get('/', (req, res) =>{
 	res.send(test_database.users);
@@ -44,6 +59,11 @@ req.body.password === test_database.users[0].password) {
 	
 app.post('/register', (req, res) => {
 	const { email, name, password } = req.body;
+	bcrypt.hash(password, saltRounds, function(err, hash) {
+		console.log(hash);
+		console.log(password);
+		// Store hash in your password DB.
+	});
 	test_database.users.push({
 		id: '987',
 		name: name,
@@ -84,6 +104,27 @@ app.put('/image', (req, res)=> {
 		res.status(400).json('no user found - thus error');
 	}
 })
+
+
+// //To Hash a password
+// bcrypt.genSalt(saltRounds, function(err, salt) {
+//     bcrypt.hash(myPlaintextPassword, salt, function(err, hash) {
+//         // Store hash in your password DB.
+//     });
+// });
+
+
+
+// //To check a password
+// // Load hash from your password DB.
+// bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
+//     // result == true
+// });
+// bcrypt.compare(someOtherPlaintextPassword, hash, function(err, result) {
+//     // result == false
+// });
+
+
 
 app.listen(3000, ()=> {
 	console.log('dev test- app is running on port 3000');
