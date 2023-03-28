@@ -4,8 +4,13 @@ import bcrypt from 'bcrypt-nodejs'
 import cors from 'cors';
 import knex from 'knex';
 
+import handleRegister from './controllers/register.js';
+import handleSignin from './controllers/signin.js';
+import handleProfile from './controllers/profile.js';
+import handleImage from './controllers/image.js';
+
+// Importing PostgreSQL database 
 const db = knex({
-	// My PostgreSQL database 
 	client: 'pg', 	//PostgreSQL 
 	connection: {
 	  host : '127.0.0.1',
@@ -15,18 +20,36 @@ const db = knex({
 	}
   });
 
-  	// for testing purposes - checking if connection is made to with knex and postgres 
-	// console.log(db.select('*').from('users'));
+// for testing purposes - checking if connection is made to with knex and postgres 
+// console.log(db.select('*').from('users'));
   db.select('*').from('users').then(data => {
 	console.log(data);
   });  
 
 const app = express();
 
-// app.use(bodyParser.json()); 		shouldn't have to use this anymore 
 app.use(express.json());
 app.use(cors());
 
+
+app.get('/', (req, res) =>{ res.send('success'); })
+
+app.post('/register', handleRegister(db, bcrypt))
+
+app.post('/signin', handleSignin(db, bcrypt))
+
+app.get('/profile/:id', handleProfile(db))
+
+app.put('/image', handleImage(db))
+
+
+
+app.listen(3000, ()=> {
+	console.log('dev test- app is running on port 3000');
+})
+
+	
+	
 //old database - need to delete this.  
 // const test_database = {
 // 	users: [
@@ -56,164 +79,6 @@ app.use(cors());
 // 	]
 // }
 
-
-app.get('/', (req, res) =>{
-	res.send('success');
-})
-
-
-app.post('/signin', (req, res) => {
-	db.select('email', 'hash')
-	  .from('login')
-	  .where('email', '=', req.body.email)
-	  .then(data => {
-		const isUser = bcrypt.compareSync(req.body.password, data[0].hash);
-		if (isUser) {
-		  return db.select('*')
-		    .from('users')
-			.where('email', '=', req.body.email)
-			.then(user => {
-			  res.json(user[0])
-			})
-			.catch(err => res.status(400).json('Hmm... unable to get user'))
-		} else {
-		  res.status(400).json('Sorry - wrong credentials')
-		}
-	  })
-	  .catch(err => res.status(400).json('Sorry - wrong credentials'))
-  })
-
-// app.post('/signin', (req, res) => {
-// 	db.select('email', 'hash').from('login')
-//     .where('email', '=', req.body.email)
-//     .then(data => {
-//       const isUser = bcrypt.compareSync(req.body.password, data[0].hash);
-// 	  console.log(isUser);
-//       if (isUser) {
-//         return db.select('*').from('users')
-// 		.where('email', '=', req.body.email)
-// 		.then(user => {
-// 			console.log(user);
-// 			res.json(user[0])
-// 		})
-// 		.catch(err => res.status(400).json('unable to get user'))
-// 	} else {
-// 		res.status(400).json('wrong credentials')
-// 	}
-//     }).catch(err => res.status(400).json('wrong credentials'))
-// })
-// commenting out local test_database 
-// if (req.body.email === test_database.users[0].email && 
-// 	req.body.password === test_database.users[0].password) {
-// 	res.json('sign in success');
-// }else {
-// 	res.status(400).json('error logging in');
-// }
-
-	
-app.post('/register', (req, res) => {
-	const { email, name, password } = req.body;
-	const hash = bcrypt.hashSync(password);
-	//linking PostgreSQL database here, in transaction block
-		db.transaction(trx => {
-			trx.insert({
-				hash: hash,
-				email: email
-			})
-			.into('login')
-			.returning('email')
-			.then(loginEmail => {
-				return trx('users')
-					.returning('*')
-					.insert({
-						email: loginEmail[0].email,
-						name: name, 
-						joined: new Date()
-						//not using our hash here
-						//not using entries count here - default is already 0 
-					})
-					.then(user => {
-						res.json(user[0]);
-					})
-			})
-			.then(trx.commit)
-			.catch(trx.rollback)
-		})
-		.catch(err =>
-			res.status(400).json('unable to register')) //removing err - leaking database information 
-})
-// commenting out local test_database 
-	// test_database.users.push({
-	// 	id: '987',
-	// 	name: name,
-	// 	email: email,
-	// 	password: password,
-	// 	entries: 0,
-	// 	joined: new Date()
-	// })
-	// res.json(test_database.users[test_database.users.length-1]);
-
-app.get('/profile/:id', (req, res) => {
-	const { id } = req.params;
-	db.select('*').from('users').where({
-		id: id
-	})
-	.then(user => {
-		//console.log(user)
-		if (user.length) {
-			res.json(user[0]);		
-		} else {
-			res.status(400).json('Not found')
-		}
-	})
-	.catch(err => res.status(400).json('Error getting user - no users found with those credentials '))
-})
-// commenting out local test_database 
-//let foundUser = false;  we don't need the found anymore
-// test_database.users.forEach(user => {
-// 	if (user.id === id) {
-// 		foundUser = true;
-// 		return res.json(user);	
-// 	}
-// })
-// if (!foundUser) {
-// 	res.status(400).json('no user found');
-// }
-
-app.put('/image', (req, res)=> {
-	const { id, entries } = req.body;
-	db.select('*').from('users')
-	.where('id', '=', id)
-	.increment('entries', 1)
-	.returning('entries')
-	.then(entries => {
-		//console.log(entries)
-		res.json(entries[0].entries);
-	})
-	.catch(err => res.status(400).json('Error getting entries - unable to get entries'))
-})
-//commenting out local test_database
-// let foundUser = false; 
-// test_database.users.forEach(user => {
-// 	if (user.id === id) {
-// 		foundUser = true;
-// 		user.entries++
-// 		return res.json(user.entries);	
-// 	}
-// })
-// if (!foundUser) {
-// 	res.status(400).json('no user found - thus error');
-// }
-
-
-app.listen(3000, ()=> {
-	console.log('dev test- app is running on port 3000');
-})
-
-	
-	
-
-
 /* 
 planning API - what will our design look like
 
@@ -222,21 +87,6 @@ planning API - what will our design look like
 ✔register route		-->  POST request 	(database)		-->  response 	:  user object
 ✔profile/(userID)	-->  GET request 	(user)			-->  response 	:  user information
 ✔Ranking				-->  PUT request 	(user data)		-->  update 	:  user object (count)
-
-for quick use:  link to:  https://www.npmjs.com/package/bcrypt-nodejs?activeTab=readme
-
-bcrypt.hash("bacon", null, null, function(err, hash) {
-    // Store hash in your password DB.
-});
-
-// Load hash from your password DB.
-bcrypt.compare("bacon", hash, function(err, res) {
-    // res == true
-});
-bcrypt.compare("veggies", hash, function(err, res) {
-    // res = false
-});
-
 
 
 */
