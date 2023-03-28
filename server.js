@@ -58,40 +58,91 @@ app.use(cors());
 
 
 app.get('/', (req, res) =>{
-	res.send(test_database.users);
+	res.send('success');
 })
 
 
 app.post('/signin', (req, res) => {
-if (req.body.email === test_database.users[0].email && 
-	req.body.password === test_database.users[0].password) {
-	res.json('sign in success');
-}else {
-	res.status(400).json('error logging in');
-}
-})
+	db.select('email', 'hash')
+	  .from('login')
+	  .where('email', '=', req.body.email)
+	  .then(data => {
+		const isUser = bcrypt.compareSync(req.body.password, data[0].hash);
+		if (isUser) {
+		  return db.select('*')
+		    .from('users')
+			.where('email', '=', req.body.email)
+			.then(user => {
+			  res.json(user[0])
+			})
+			.catch(err => res.status(400).json('Hmm... unable to get user'))
+		} else {
+		  res.status(400).json('Sorry - wrong credentials')
+		}
+	  })
+	  .catch(err => res.status(400).json('Sorry - wrong credentials'))
+  })
+
+// app.post('/signin', (req, res) => {
+// 	db.select('email', 'hash').from('login')
+//     .where('email', '=', req.body.email)
+//     .then(data => {
+//       const isUser = bcrypt.compareSync(req.body.password, data[0].hash);
+// 	  console.log(isUser);
+//       if (isUser) {
+//         return db.select('*').from('users')
+// 		.where('email', '=', req.body.email)
+// 		.then(user => {
+// 			console.log(user);
+// 			res.json(user[0])
+// 		})
+// 		.catch(err => res.status(400).json('unable to get user'))
+// 	} else {
+// 		res.status(400).json('wrong credentials')
+// 	}
+//     }).catch(err => res.status(400).json('wrong credentials'))
+// })
+// commenting out local test_database 
+// if (req.body.email === test_database.users[0].email && 
+// 	req.body.password === test_database.users[0].password) {
+// 	res.json('sign in success');
+// }else {
+// 	res.status(400).json('error logging in');
+// }
+
 	
 app.post('/register', (req, res) => {
 	const { email, name, password } = req.body;
-	//linking PostgreSQL database here
-	db('users')
-		.returning('*')
-		.insert({
-			email: email,
-			name: name, 
-			joined: new Date()
-			//not using our hash here
-			//not using entries count here - default is already 0 
-	}).then(user => {
-		res.json(user[0]);
-	}).catch(err =>
-		res.status(400).json('unable to register')) //removing err - leaking database information 
-
-	bcrypt.hash("bacon", null, null, function(err, hash) {
-		console.log(hash);
-	});
-
-	// commenting out local test_database 
+	const hash = bcrypt.hashSync(password);
+	//linking PostgreSQL database here, in transaction block
+		db.transaction(trx => {
+			trx.insert({
+				hash: hash,
+				email: email
+			})
+			.into('login')
+			.returning('email')
+			.then(loginEmail => {
+				return trx('users')
+					.returning('*')
+					.insert({
+						email: loginEmail[0].email,
+						name: name, 
+						joined: new Date()
+						//not using our hash here
+						//not using entries count here - default is already 0 
+					})
+					.then(user => {
+						res.json(user[0]);
+					})
+			})
+			.then(trx.commit)
+			.catch(trx.rollback)
+		})
+		.catch(err =>
+			res.status(400).json('unable to register')) //removing err - leaking database information 
+})
+// commenting out local test_database 
 	// test_database.users.push({
 	// 	id: '987',
 	// 	name: name,
@@ -101,7 +152,6 @@ app.post('/register', (req, res) => {
 	// 	joined: new Date()
 	// })
 	// res.json(test_database.users[test_database.users.length-1]);
-})
 
 app.get('/profile/:id', (req, res) => {
 	const { id } = req.params;
@@ -140,6 +190,7 @@ app.put('/image', (req, res)=> {
 		//console.log(entries)
 		res.json(entries[0].entries);
 	})
+	.catch(err => res.status(400).json('Error getting entries - unable to get entries'))
 })
 //commenting out local test_database
 // let foundUser = false; 
@@ -153,10 +204,6 @@ app.put('/image', (req, res)=> {
 // if (!foundUser) {
 // 	res.status(400).json('no user found - thus error');
 // }
-
-
-
-
 
 
 app.listen(3000, ()=> {
