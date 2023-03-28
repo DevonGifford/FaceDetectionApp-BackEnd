@@ -1,5 +1,19 @@
+import Clarifai from 'clarifai';
+
+const app = new Clarifai.App({
+    apiKey: '995a8ba49af14bf7be04d5d2a8dda63b'     //Please insert your own API key here....
+});
+const handleApiCall = (req, res) => {
+    app.models
+        .predict('face-detection', req.body.input)
+        .then(data => {
+            res.json(data);
+        })
+    .catch(err => res.status(400).json('api is not responding'))
+}
+
 const handleImage = (db) => (req, res) => {
-	const { id, entries } = req.body;
+	const { id } = req.body;
 	db.select('*')
     .from('users')
 	.where('id', '=', id)
@@ -12,7 +26,10 @@ const handleImage = (db) => (req, res) => {
 	.catch(err => res.status(400).json('Error getting entries - unable to get entries'))
 };
 
-export default handleImage;
+export { 
+    handleImage, 
+    handleApiCall, 
+}
 
 //commenting out local test_database
 // let foundUser = false; 

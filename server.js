@@ -7,7 +7,7 @@ import knex from 'knex';
 import handleRegister from './controllers/register.js';
 import handleSignin from './controllers/signin.js';
 import handleProfile from './controllers/profile.js';
-import handleImage from './controllers/image.js';
+import { handleImage, handleApiCall } from './controllers/image.js';
 
 // Importing PostgreSQL database 
 const db = knex({
@@ -42,12 +42,18 @@ app.get('/profile/:id', handleProfile(db))
 
 app.put('/image', handleImage(db))
 
+app.post('/imageurl', (req, res) => { handleApiCall(req,res) })
 
 
 app.listen(3000, ()=> {
 	console.log('dev test- app is running on port 3000');
 })
 
+//preperation for environmental variable injection:
+// const PORT = process.env.PORT
+// app.listen(PORT, () => {
+// 	console.log(`Server is listening on Port ${PORT}`)
+// });
 	
 	
 //old database - need to delete this.  
@@ -78,15 +84,3 @@ app.listen(3000, ()=> {
 // 		}
 // 	]
 // }
-
-/* 
-planning API - what will our design look like
-
-✔route/home rout 	-->  GET request 	(data)			-->  response 	:  this is working ✔
-✔sign-in route  	-->  POST request 	(JSON) 			-->  response 	:  success  or  if failure = register route
-✔register route		-->  POST request 	(database)		-->  response 	:  user object
-✔profile/(userID)	-->  GET request 	(user)			-->  response 	:  user information
-✔Ranking				-->  PUT request 	(user data)		-->  update 	:  user object (count)
-
-
-*/
