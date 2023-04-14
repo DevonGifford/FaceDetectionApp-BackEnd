@@ -36,6 +36,8 @@ You may also see any lint errors in the console.
 
 This app uses cors to run on your local host server
 
+Find the front end of this app @ https://github.com/DevonGifford/FaceDetectionApp-Frontend/blob/main/README.md
+
 ## futher ...
 This applet is using an outdated package of bcrypt, specifically bcrypt-nodejs
 The reason for this is that this project is merely a showcase app for my portfolio.
