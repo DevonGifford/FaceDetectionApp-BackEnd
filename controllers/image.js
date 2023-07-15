@@ -14,11 +14,9 @@ const handleApiCall = (req, res) => {
     .catch(err => res.status(400).json('api is not responding'))
 }
 
-const handleImage = (db) => (req, res, db) => {
+const handleImage = (req, res, db) => {
 	const { id } = req.body;
-	db.select('*')
-    .from('users')
-	.where('id', '=', id)
+    db('users').where('id', '=', id)
 	.increment('entries', 1)
 	.returning('entries')
 	.then(entries => {

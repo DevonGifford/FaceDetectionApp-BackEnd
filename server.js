@@ -5,10 +5,10 @@ import bcrypt from 'bcrypt-nodejs'
 import cors from 'cors';
 import knex from 'knex';
 
-import handleRegister from './controllers/register.js';
-import handleSignin from './controllers/signin.js';
-import handleProfile from './controllers/profile.js';
-import { handleImage, handleApiCall } from './controllers/image.js';
+import register from './controllers/register.js';
+import signin from './controllers/signin.js';
+import profile from './controllers/profile.js';
+import image from './controllers/image.js';
 
 // Importing PostgreSQL database 
 const db = knex({
@@ -39,17 +39,12 @@ app.use(
 );
 
 
-app.get('/', (req, res) =>{ res.send('success'); })
-
-app.post('/register', handleRegister(db, bcrypt))
-
-app.post('/signin', handleSignin(db, bcrypt))
-
-app.get('/profile/:id', handleProfile(db))
-
-app.put('/image', handleImage(db))
-
-app.post('/imageurl', (req, res) => { handleApiCall(req,res) })
+app.get('/', (req, res)=> { res.send(db.users) })
+app.post('/signin', signin.handleSignin(db, bcrypt))
+app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcrypt) })
+app.get('/profile/:id', (req, res) => { profile.handleProfileGet(req, res, db)})
+app.put('/image', (req, res) => { image.handleImage(req, res, db)})
+app.post('/imageurl', (req, res) => { image.handleApiCall(req, res)})
 
 app.listen(process.env.PORT || 3000, ()=> {
 	console.log(`app is running on port ${process.env.PORT}`);
