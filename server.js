@@ -5,9 +5,9 @@ import bcrypt from 'bcrypt-nodejs'
 import cors from 'cors';
 import knex from 'knex';
 
-import register from './controllers/register.js';
-import signin from './controllers/signin.js';
-import profile from './controllers/profile.js';
+const register = require('./controllers/register');
+const signin = require('./controllers/signin');
+const profile = require('./controllers/profile');
 import {handleApiCall, handleImage } from './controllers/image.js';
 
 // Importing PostgreSQL database 
