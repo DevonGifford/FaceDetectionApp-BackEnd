@@ -26,9 +26,9 @@ const db = knex({
 
 // for testing purposes - checking if connection is made to with knex and postgres 
 // console.log(db.select('*').from('users'));
-  db.select('*').from('users').then(data => {
-	console.log(data);
-  });  
+//   db.select('*').from('users').then(data => {
+// 	console.log(data);
+//   });  
 
 const app = express();
 app.use(bodyParser.json());
