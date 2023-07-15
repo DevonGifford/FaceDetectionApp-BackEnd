@@ -17,14 +17,3 @@ const handleProfile = (db) => (req, res) => {
 
 export default handleProfile; 
 
-// commenting out local test_database 
-//let foundUser = false;  we don't need the found anymore
-// test_database.users.forEach(user => {
-// 	if (user.id === id) {
-// 		foundUser = true;
-// 		return res.json(user);	
-// 	}
-// })
-// if (!foundUser) {
-// 	res.status(400).json('no user found');
-// }

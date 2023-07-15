@@ -1,4 +1,5 @@
 import * as http from 'http';
+import bodyParser from 'body-parser';
 import express from 'express';
 import bcrypt from 'bcrypt-nodejs'
 import cors from 'cors';
@@ -30,9 +31,12 @@ const db = knex({
   });  
 
 const app = express();
-
-app.use(express.json());
-app.use(cors());
+app.use(bodyParser.json());
+app.use(
+	cors({
+		origin: 'https://devon-facedetection-app.onrender.com/',
+	})
+);
 
 
 app.get('/', (req, res) =>{ res.send('success'); })
@@ -48,42 +52,7 @@ app.put('/image', handleImage(db))
 app.post('/imageurl', (req, res) => { handleApiCall(req,res) })
 
 
-app.listen(3000, ()=> {
-	console.log('dev test- app is running on port 3000');
+app.listen(process.env.PORT || 3000, ()=> {
+	console.log(`app is running on port ${process.env.PORT}`);
 })
 
-//preperation for environmental variable injection:
-// const PORT = process.env.PORT
-// app.listen(PORT, () => {
-// 	console.log(`Server is listening on Port ${PORT}`)
-// });
-	
-	
-//old database - need to delete this.  
-// const test_database = {
-// 	users: [
-// 		{
-// 			id : '123',
-// 			name : 'Lisa',
-// 			email : 'Lisa@gmail.com',
-// 			password : 'Lisa123',
-// 			entries : 0,
-// 			joined : new Date()
-// 		},
-// 		{
-// 			id : '321',
-// 			name : 'Jack',
-// 			email : 'Jack@gmail.com',
-// 			password : 'Jack123',
-// 			entries : 0,
-// 			joined : new Date()
-// 		}
-// 	], login: [
-// 		{
-// 			id: '987',
-// 			hash: '',
-// 			email: 'Lisa@gmail.com'
-
-// 		}
-// 	]
-// }
