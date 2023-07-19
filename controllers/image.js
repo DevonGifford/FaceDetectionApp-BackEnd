@@ -1,24 +1,21 @@
-import Clarifai from 'clarifai';
+const Clarifai = require('clarifai');
 
 const app = new Clarifai.App({
-    apiKey: process.env.API_CLARIFAI    //Please insert your own API key here....
+    apiKey: '995a8ba49af14bf7be04d5d2a8dda63b'   //Please insert your own API key here....
 });
 
 
 const handleApiCall = (req, res) => {
-    app.models
-        .predict('face-detection', req.body.input)
-        .then(data => {
-            res.json(data);
-        })
-    .catch(err => res.status(400).json('api is not responding'))
-}
+    app.models.predict('face-detection', req.body.input)
+      .then(data => {
+        res.json(data);
+      })
+      .catch(err => res.status(400).json('unable to work with API'))
+  }
 
-const handleImage = (db) => (req, res, db) => {
+const handleImage = (req, res, db) => {
 	const { id } = req.body;
-	db.select('*')
-    .from('users')
-	.where('id', '=', id)
+    db('users').where('id', '=', id)
 	.increment('entries', 1)
 	.returning('entries')
 	.then(entries => {
@@ -28,8 +25,8 @@ const handleImage = (db) => (req, res, db) => {
 	.catch(err => res.status(400).json('Error getting entries - unable to get entries'))
 };
 
-module.export = { 
-    handleImage, 
-    handleApiCall, 
-};
 
+module.exports = {
+  handleImage,
+  handleApiCall,
+};

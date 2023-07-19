@@ -1,19 +1,18 @@
-const handleProfile = (db) => (req, res) => {
+const handleProfileGet = (req, res, db) => {
 	const { id } = req.params;
-	db.select('*').from('users').where({
-		id: id
-	})
-	.then(user => {
-		//console.log(user)
+	db.select('*')
+	  .from('users')
+	  .where({ id })
+	  .then((user) => {
 		if (user.length) {
-			res.json(user[0]);		
+		  res.json(user[0]);
 		} else {
-			res.status(400).json('Not found')
+		  res.status(400).json('Not found');
 		}
-	})
-	.catch(err => res.status(400).json('Error getting user - no users found with those credentials '))
-}
-
-
-export default handleProfile; 
-
+	  })
+	  .catch((err) => res.status(400).json('error getting user'));
+  };
+  
+  module.exports = {
+	handleProfileGet
+  };
